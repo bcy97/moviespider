@@ -5,21 +5,13 @@ import bcy.moviespider.dao.MtimeDao;
 import bcy.moviespider.entity.MTime;
 import bcy.moviespider.entity.MTimeComment;
 import bcy.moviespider.service.MtimeService;
+import bcy.moviespider.util.HttpUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.apache.http.HttpEntity;
-import org.apache.http.ParseException;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -31,46 +23,10 @@ public class MtimeServiceImpl implements MtimeService {
     @Autowired
     MtimeCommentDao mtimeCommentDao;
 
-    public String getUrl(String url) {
-
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        try {
-            // 创建httpget.
-            HttpGet httpget = new HttpGet(url);
-            // 执行get请求.
-            CloseableHttpResponse response = httpclient.execute(httpget);
-            try {
-                // 获取响应实体
-                HttpEntity entity = response.getEntity();
-                // 打印响应状态
-                if (entity != null) {
-                    // 打印响应内容
-                    String responseBody = EntityUtils.toString(entity);
-                    return responseBody;
-                }
-            } finally {
-                response.close();
-            }
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            // 关闭连接,释放资源
-            try {
-                httpclient.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
 
     @Override
     public void catchShowHotList(String url) {
-        String data = getUrl(url);
+        String data = HttpUtil.getUrl(url);
         if (data == null || data.equals("")) {
             return;
         }
@@ -90,7 +46,7 @@ public class MtimeServiceImpl implements MtimeService {
 
     @Override
     public void catchComingList(String url) {
-        String data = getUrl(url);
+        String data = HttpUtil.getUrl(url);
         if (data == null || data.equals("")) {
             return;
         }
@@ -120,7 +76,7 @@ public class MtimeServiceImpl implements MtimeService {
             JsonObject data;
             JsonArray cts;
             while (true) {
-                response = getUrl(url + index + "&movieId=" + m.getMovieId());
+                response = HttpUtil.getUrl(url + index + "&movieId=" + m.getMovieId());
                 json = (JsonObject) parser.parse(response);
                 data = json.getAsJsonObject("data");
                 cts = data.get("cts").getAsJsonArray();
