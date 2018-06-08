@@ -11,7 +11,9 @@ public class DbComment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
-    private long uid;
+    @Column(name = "doubanId")
+    private long doubanId;
+    private String uid;
     private String avatar;
     private String signature;
     @Column(name = "name")
@@ -30,11 +32,19 @@ public class DbComment {
         this.id = id;
     }
 
-    public long getUid() {
+    public long getDoubanId() {
+        return doubanId;
+    }
+
+    public void setDoubanId(long doubanId) {
+        this.doubanId = doubanId;
+    }
+
+    public String getUid() {
         return uid;
     }
 
-    public void setUid(long uid) {
+    public void setUid(String uid) {
         this.uid = uid;
     }
 

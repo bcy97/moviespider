@@ -91,17 +91,9 @@ public class DoubanServiceImpl implements DoubanService {
                 doubanInfo.setGenres(infoJson.get("genres").toString());
                 doubanInfo.setDirectors(directorResult.toString());
                 doubanInfo.setCasts(castResult.toString());
-                doubanInfo.setWriters(writerResult.toString());
                 doubanInfo.setDoubanRating(ratingObject.get("average").getAsDouble());
 
-                doubanInfo.setPubdates(pub);
 
-                if (infoJson.get("mainland_pubdate") != null) {
-                    doubanInfo.setMainland_pubdate(infoJson.get("mainland_pubdate").getAsString());
-                } else {
-                    doubanInfo.setMainland_pubdate("");
-                }
-                doubanInfo.setDurations(durations);
                 doubanInfo.setDoubanId(id);
 
                 System.out.println(doubanInfo);
@@ -127,15 +119,16 @@ public class DoubanServiceImpl implements DoubanService {
             for (int i = 0; i < comments.size(); i++) {
                 JsonObject comment = comments.get(i).getAsJsonObject();
                 DbComment dbComment = new DbComment();
+                dbComment.setDoubanId(info.getDoubanId());
 
                 JsonObject author = comment.get("author").getAsJsonObject();
-                dbComment.setUid(author.get("uid").getAsLong());
+                dbComment.setUid(author.get("uid").getAsString());
                 dbComment.setAvatar(author.get("avatar").getAsString());
                 dbComment.setSignature(author.get("signature").getAsString());
                 dbComment.setUsername(author.get("name").getAsString());
 
                 dbComment.setContent(comment.get("content").getAsString());
-                dbComment.setTime(Timestamp.valueOf(comment.get("create_at").getAsString()));
+                dbComment.setTime(Timestamp.valueOf(comment.get("created_at").getAsString()));
 
                 JsonObject rating = comment.get("rating").getAsJsonObject();
                 dbComment.setRating(rating.get("value").getAsInt());
