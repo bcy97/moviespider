@@ -8,13 +8,14 @@ import java.sql.Timestamp;
 public class MTimeComment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
 
     @Column(name = "movieId")
     private long movieId;
 
+    @Column(name = "caimg")
     private String caimg;
 
     @Column(name = "ca")
@@ -95,5 +96,19 @@ public class MTimeComment {
 
     public void setRate(double rate) {
         this.rate = rate;
+    }
+
+    @Override
+    public String toString() {
+        return "MTimeComment{" +
+                "id=" + id +
+                ", movieId=" + movieId +
+                ", caimg='" + caimg + '\'' +
+                ", username='" + username + '\'' +
+                ", time=" + time +
+                ", content='" + content + '\'' +
+                ", commentCount=" + commentCount +
+                ", rate=" + rate +
+                '}';
     }
 }

@@ -123,7 +123,7 @@ public class MtimeServiceImpl implements MtimeService {
                 response = getUrl(url + index + "&movieId=" + m.getMovieId());
                 json = (JsonObject) parser.parse(response);
                 data = json.getAsJsonObject("data");
-                cts = json.get("cts").getAsJsonArray();
+                cts = data.get("cts").getAsJsonArray();
                 if (cts.size() <= 0) {
                     break;
                 }
@@ -137,8 +137,17 @@ public class MtimeServiceImpl implements MtimeService {
                     mTimeComment.setContent(subObject.get("ce").getAsString());
                     mTimeComment.setCommentCount(subObject.get("commentCount").getAsInt());
                     mTimeComment.setRate(subObject.get("cr").getAsDouble());
-                    mtimeCommentDao.save(mTimeComment);
+                    System.out.println(mTimeComment);
+                    try {
+                        mtimeCommentDao.save(mTimeComment);
+                    } catch (Exception e) {
+                        System.out.println("/////////////////////////////////////");
+                        System.out.println(mTimeComment);
+                        System.out.println("/////////////////////////////////////");
+                        continue;
+                    }
                 }
+                index++;
             }
         }
     }
