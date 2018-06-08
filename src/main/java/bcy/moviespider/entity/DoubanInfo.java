@@ -32,18 +32,14 @@ public class DoubanInfo {
     private String directors;
     @Column(name="casts")
     private String casts;
-    @Column(name="writers")
-    private String writers;
     @Column(name="doubanRating")
     private double doubanRating;
-    @Column(name="pubdates")
-    private String pubdates;
-    @Column(name="mainland_pubdate")
-    private String mainland_pubdate;
-    @Column(name="durations")
-    private String durations;
     @Column(name="doubanId")
     private long doubanId;
+    @Column(name = "mtimeId")
+    private long mtimeId;
+    @Column(name="maoyanId")
+    private long maoyanId;
 
     public String getByname() {
         return byname;
@@ -100,28 +96,12 @@ public class DoubanInfo {
         this.casts = casts;
     }
 
-    public String getWriters() {
-        return writers;
-    }
-
-    public void setWriters(String writers) {
-        this.writers = writers;
-    }
-
     public double getDoubanRating() {
         return doubanRating;
     }
 
     public void setDoubanRating(double doubanRating) {
         this.doubanRating = doubanRating;
-    }
-
-    public String getDurations() {
-        return durations;
-    }
-
-    public void setDurations(String durations) {
-        this.durations = durations;
     }
 
     public long getDoubanId() {
@@ -159,19 +139,19 @@ public class DoubanInfo {
         this.id = id;
     }
 
-    public String getPubdates() {
-        return pubdates;
+    public long getMtimeId() {
+        return mtimeId;
     }
 
-    public void setPubdates(String pubdates) {
-        this.pubdates = pubdates;
+    public void setMtimeId(long mtimeId) {
+        this.mtimeId = mtimeId;
     }
 
-    public String getMainland_pubdate() {
-        return mainland_pubdate;
+    public long getMaoyanId() {
+        return maoyanId;
     }
 
-    public void setMainland_pubdate(String mainland_pubdate) {
-        this.mainland_pubdate = mainland_pubdate;
+    public void setMaoyanId(long maoyanId) {
+        this.maoyanId = maoyanId;
     }
 }
