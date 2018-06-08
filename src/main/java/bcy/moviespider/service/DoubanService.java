@@ -6,4 +6,6 @@ package bcy.moviespider.service;
  */
 public interface DoubanService {
     void getMovieInfo();
+
+    void getMovieComment();
 }

@@ -14,11 +14,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = MoviespiderApplication.class)
 public class DoubanServiceTest {
-        @Autowired
-        DoubanService doubanService;
+    @Autowired
+    DoubanService doubanService;
 
-        @Test
-        public void testGetInfo() {
-            doubanService.getMovieInfo();
-        }
+    @Test
+    public void testGetInfo() {
+        doubanService.getMovieInfo();
+    }
+
+    @Test
+    public void testGetComment() {
+        doubanService.getMovieComment();
+    }
 }

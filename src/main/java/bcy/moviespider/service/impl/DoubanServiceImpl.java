@@ -1,26 +1,19 @@
 package bcy.moviespider.service.impl;
 
+import bcy.moviespider.dao.DbCommentDao;
 import bcy.moviespider.dao.DoubanDao;
 import bcy.moviespider.dao.MtimeDao;
+import bcy.moviespider.entity.DbComment;
 import bcy.moviespider.entity.DoubanInfo;
 import bcy.moviespider.entity.MTime;
-import bcy.moviespider.entity.MTimeComment;
 import bcy.moviespider.service.DoubanService;
+import bcy.moviespider.util.HttpUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.apache.http.HttpEntity;
-import org.apache.http.ParseException;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -34,43 +27,8 @@ public class DoubanServiceImpl implements DoubanService {
     MtimeDao mtimeDao;
     @Autowired
     DoubanDao doubanDao;
-
-    public String getUrl(String url) {
-
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        try {
-            // 创建httpget.
-            HttpGet httpget = new HttpGet(url);
-            // 执行get请求.
-            CloseableHttpResponse response = httpclient.execute(httpget);
-            try {
-                // 获取响应实体
-                HttpEntity entity = response.getEntity();
-                // 打印响应状态
-                if (entity != null) {
-                    // 打印响应内容
-                    String responseBody = EntityUtils.toString(entity);
-                    return responseBody;
-                }
-            } finally {
-                response.close();
-            }
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            // 关闭连接,释放资源
-            try {
-                httpclient.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
+    @Autowired
+    DbCommentDao dbCommentDao;
 
     @Override
     public void getMovieInfo() {
@@ -78,18 +36,18 @@ public class DoubanServiceImpl implements DoubanService {
         String url = "https://api.douban.com/v2/movie/search?q=";
         for (MTime m : mTimes) {
 //            if(m.getMovieId()>256235){
-            DoubanInfo doubanInfo=new DoubanInfo();
+            DoubanInfo doubanInfo = new DoubanInfo();
 
-            String idResponse=getUrl(url+m.getName());
+            String idResponse = HttpUtil.getUrl(url + m.getName());
 //        String idResponse=getUrl("https://api.douban.com/v2/movie/search?q=超时空同居");
             JsonParser parser = new JsonParser();
             JsonObject json = (JsonObject) parser.parse(idResponse);
-            JsonArray array=json.get("subjects").getAsJsonArray();
+            JsonArray array = json.get("subjects").getAsJsonArray();
 
-            if(array.size()!=0) {
+            if (array.size() != 0) {
                 long id = array.get(0).getAsJsonObject().get("id").getAsLong();
 
-                String infoResponse = getUrl("https://api.douban.com/v2/movie/subject/" + id);
+                String infoResponse = HttpUtil.getUrl("https://api.douban.com/v2/movie/subject/" + id);
                 JsonObject infoJson = (JsonObject) parser.parse(infoResponse);
                 JsonObject ratingObject = (JsonObject) infoJson.get("rating");
 
@@ -149,6 +107,47 @@ public class DoubanServiceImpl implements DoubanService {
                 System.out.println(doubanInfo);
                 doubanDao.save(doubanInfo);
 //            }
+            }
+        }
+    }
+
+    @Override
+    public void getMovieComment() {
+
+        String prefix = "https://api.douban.com/v2/movie/subject/";
+        String suffix = "/comments?apikey=0b2bdeda43b5688921839c8ecb20399b&count=200&client=&udid=";
+
+        List<DoubanInfo> infos = doubanDao.findAll();
+        JsonParser parser = new JsonParser();
+        for (DoubanInfo info : infos) {
+            String url = prefix + info.getDoubanId() + suffix;
+            String response = HttpUtil.getUrl(url);
+            JsonObject data = (JsonObject) parser.parse(response);
+            JsonArray comments = data.getAsJsonArray("comments");
+            for (int i = 0; i < comments.size(); i++) {
+                JsonObject comment = comments.get(i).getAsJsonObject();
+                DbComment dbComment = new DbComment();
+
+                JsonObject author = comment.get("author").getAsJsonObject();
+                dbComment.setUid(author.get("uid").getAsLong());
+                dbComment.setAvatar(author.get("avatar").getAsString());
+                dbComment.setSignature(author.get("signature").getAsString());
+                dbComment.setUsername(author.get("name").getAsString());
+
+                dbComment.setContent(comment.get("content").getAsString());
+                dbComment.setTime(Timestamp.valueOf(comment.get("create_at").getAsString()));
+
+                JsonObject rating = comment.get("rating").getAsJsonObject();
+                dbComment.setRating(rating.get("value").getAsInt());
+
+                System.out.println(dbComment);
+                try {
+                    dbCommentDao.save(dbComment);
+                } catch (Exception e) {
+                    System.out.println("////////////////////////////////////////////");
+                    System.out.println(dbComment);
+                    System.out.println("////////////////////////////////////////////");
+                }
             }
         }
     }
